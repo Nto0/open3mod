@@ -1134,15 +1134,6 @@ namespace open3mod
             tip.ShowDialog();
         }
 
-
-        private void OnDonate(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            linkLabelDonate.LinkVisited = false;
-            var donate = new DonationDialog();
-            donate.ShowDialog();
-        }
-
-
         private void OnSetFileAssociations(object sender, EventArgs e)
         {
             using (var imp = new Assimp.AssimpContext())

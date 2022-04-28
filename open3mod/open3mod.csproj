@@ -1,29 +1,47 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net471</TargetFramework>
-    <UseWindowsForms>true</UseWindowsForms>
-    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net471</TargetFramework>
+		<UseWindowsForms>true</UseWindowsForms>
+		<AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+		<Platforms>AnyCPU;x64;x86</Platforms>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="Images\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Images\**" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Images\**" />
+		<None Remove="Shader\**" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Images\**" />
+		<EmbeddedResource Include="Shader\**" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="AssimpNet" Version="4.1.0" />
-    <PackageReference Include="OpenTK" Version="3.1.0" />
-    <PackageReference Include="OpenTK.GLControl" Version="3.1.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="AssimpNet" Version="4.1.0" />
+		<PackageReference Include="OpenTK" Version="3.1.0" />
+		<PackageReference Include="OpenTK.GLControl" Version="3.1.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\libs\devil-net\DevILNet\DevILNet.csproj" />
-    <ProjectReference Include="..\libs\kd-sharp\KDTree\KDTree.csproj" />
-    <!--<ProjectReference Include="..\libs\SmartThreadPool\SmartThreadPool\SmartThreadPool.csproj" />-->
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\libs\devil-net\DevILNet\DevILNet.csproj" />
+		<ProjectReference Include="..\libs\kd-sharp\KDTree\KDTree.csproj" />
+		<!--<ProjectReference Include="..\libs\SmartThreadPool\SmartThreadPool\SmartThreadPool.csproj" />-->
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="GraphicsSettings.Designer.cs">
+	    <DesignTimeSharedInput>True</DesignTimeSharedInput>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>GraphicsSettings.settings</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="GraphicsSettings.settings">
+	    <Generator>SettingsSingleFileGenerator</Generator>
+	    <LastGenOutput>GraphicsSettings.Designer.cs</LastGenOutput>
+	  </None>
+	</ItemGroup>
 
 </Project>

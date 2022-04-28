@@ -148,10 +148,11 @@ namespace open3mod
             catch (IOException)
             {
                 var fileName = Path.GetFileName(name);
-                if (fileName == null)
+                if (string.IsNullOrEmpty(fileName))
                 {
                     throw;
                 }
+                bool filenameDiffrent = fileName.Equals(name, StringComparison.CurrentCultureIgnoreCase);
                 try
                 {
                     path = Path.Combine(basedir, fileName);
@@ -173,18 +174,35 @@ namespace open3mod
                                 try
                                 {
                                     path = Path.Combine(folder, fileName);
+                                    if (!IsPathAbsolute(path))
+                                        path = System.IO.Path.Combine(basedir, path);
                                     s = new FileStream(path, FileMode.Open, FileAccess.Read);
                                     break;
                                 }
                                 catch (IOException)
                                 {
+                                    if (filenameDiffrent)
+                                    {
+                                        try
+                                        {
+                                            path = Path.Combine(folder, name);
+                                            if (!IsPathAbsolute(path))
+                                                path = System.IO.Path.Combine(basedir, path);
+                                            s = new FileStream(path, FileMode.Open, FileAccess.Read);
+                                            break;
+                                        }
+                                        catch (IOException)
+                                        {
+                                            continue;
+                                        }
+                                    }
                                     continue;
                                 }
                             }
                         }
                         if (s == null)
                         {
-                            throw new IOException();
+                            throw;
                         }
                     }
                 }
@@ -194,6 +212,26 @@ namespace open3mod
             Debug.Assert(path != null);
             actualLocation = path;
             return s;
+        }
+
+        static bool IsPathAbsolute(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+                return false;
+            if (path.StartsWith("."))
+                return false;
+            if (path.Length > 2)
+            {
+                if (path[1] == ':')
+                    return true;
+                if (IsDirectorySeperator(path[0]) && IsDirectorySeperator(path[1]))
+                    return true;
+            }
+            return false;
+        }
+        static bool IsDirectorySeperator(char c)
+        {
+            return (c == System.IO.Path.DirectorySeparatorChar || c == System.IO.Path.AltDirectorySeparatorChar);
         }
 
         public Image Image
