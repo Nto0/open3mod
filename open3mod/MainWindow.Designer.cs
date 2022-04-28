@@ -122,7 +122,6 @@ namespace open3mod
             this.toolStripStatistics = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.directorySearcher1 = new System.DirectoryServices.DirectorySearcher();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.linkLabelDonate = new System.Windows.Forms.LinkLabel();
             this.label1 = new System.Windows.Forms.Label();
@@ -866,12 +865,6 @@ namespace open3mod
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(300, 17);
             this.toolStripStatusLabel1.Text = "| Keep right mouse button pressed to move light source";
             // 
-            // directorySearcher1
-            // 
-            this.directorySearcher1.ClientTimeout = System.TimeSpan.Parse("-00:00:01");
-            this.directorySearcher1.ServerPageTimeLimit = System.TimeSpan.Parse("-00:00:01");
-            this.directorySearcher1.ServerTimeLimit = System.TimeSpan.Parse("-00:00:01");
-            // 
             // linkLabelDonate
             // 
             this.linkLabelDonate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -1046,7 +1039,6 @@ namespace open3mod
         private ToolStripMenuItem showAnimationSkeletonToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator8;
         private ToolStripMenuItem optionsToolStripMenuItem;
-        private System.DirectoryServices.DirectorySearcher directorySearcher1;
         private ColorDialog colorDialog1;
         private ToolStripSeparator toolStripSeparator9;
         private ToolStripMenuItem toolStripMenuItem2;

@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using Amib.Threading;
 using Assimp;
 using Action = System.Action;
 using Timer = System.Windows.Forms.Timer;
@@ -86,15 +85,15 @@ namespace open3mod
             trackBarAngle.Value = (int)_thresholdAngleInDegrees;
         }
 
-        /// <summary>
-        /// Use a separate thread pool for coarse ( = mesh level ) parallelization.
-        /// 
-        /// STP shows deadlocks on recursive use. This can be mitigated by setting priorities,
-        /// but to use a separate thread pool is far safer. The extra cost of setting up a
-        /// few threads is relatively minor given that the threads will afterwards run
-        /// large jobs.
-        /// </summary>
-        private static readonly SmartThreadPool CoarseThreadPool = new SmartThreadPool();
+        ///// <summary>
+        ///// Use a separate thread pool for coarse ( = mesh level ) parallelization.
+        ///// 
+        ///// STP shows deadlocks on recursive use. This can be mitigated by setting priorities,
+        ///// but to use a separate thread pool is far safer. The extra cost of setting up a
+        ///// few threads is relatively minor given that the threads will afterwards run
+        ///// large jobs.
+        ///// </summary>
+        //private static readonly SmartThreadPool CoarseThreadPool = new SmartThreadPool();
 
         /// <summary>
         /// Update normals in the current mesh and refresh the 3D view.
@@ -102,29 +101,28 @@ namespace open3mod
         private void UpdateNormals(float angle)
         {
             SafeInvoke(new Action(() => labelStatusText.Text = _isInitialUpdate ? "Preparing ..." : "Updating ..."));
-            _meshesToProcess.ParallelDo(
-                entry =>
+            Parallel.ForEach(_meshesToProcess, entry =>
+            {
+                if (entry.PreviewMesh == null)
                 {
-                    if (entry.PreviewMesh == null)
-                    {
-                        entry.PreviewMesh = MeshUtil.DeepCopy(entry.Mesh);
-                    }
-                    if (entry.Generator == null)
-                    {
-                        entry.Generator = new NormalVectorGenerator(entry.PreviewMesh);
-                    }
-                    entry.Generator.Compute(angle);
+                    entry.PreviewMesh = MeshUtil.DeepCopy(entry.Mesh);
+                }
+                if (entry.Generator == null)
+                {
+                    entry.Generator = new NormalVectorGenerator(entry.PreviewMesh);
+                }
+                entry.Generator.Compute(angle);
 
-                    // Use BeginInvoke() to dispatch the mesh override change to the GUI/Render thread.
-                    if (InvokeRequired)
-                    {
-                        BeginInvoke(new Action(() => _scene.SetOverrideMesh(entry.Mesh, entry.PreviewMesh)));
-                    }
-                    else
-                    {
-                        _scene.SetOverrideMesh(entry.Mesh, entry.PreviewMesh);
-                    }
-                }, 1 /* granularity per-mesh */, CoarseThreadPool);
+                // Use BeginInvoke() to dispatch the mesh override change to the GUI/Render thread.
+                if (InvokeRequired)
+                {
+                    BeginInvoke(new Action(() => _scene.SetOverrideMesh(entry.Mesh, entry.PreviewMesh)));
+                }
+                else
+                {
+                    _scene.SetOverrideMesh(entry.Mesh, entry.PreviewMesh);
+                }
+            }); /* granularity per-mesh */
             Action closeAction = null;
             closeAction = new Action(
                 () =>

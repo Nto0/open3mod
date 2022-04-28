@@ -189,17 +189,22 @@ namespace open3mod
             // corresponding output paths, and omits animations if requested.
             var sourceScene = new Assimp.Scene
                               {
-                                  Textures = scene.Raw.Textures,
+                                  //Textures = scene.Raw.Textures,
                                   SceneFlags = scene.Raw.SceneFlags,
                                   RootNode = scene.Raw.RootNode,
-                                  Meshes = scene.Raw.Meshes,
-                                  Lights = scene.Raw.Lights,
-                                  Cameras = scene.Raw.Cameras
+                                  //Meshes = scene.Raw.Meshes,
+                                  //Lights = scene.Raw.Lights,
+                                  //Cameras = scene.Raw.Cameras
                               };
+            sourceScene.Textures.AddRange(scene.Raw.Textures);
+            sourceScene.Meshes.AddRange(scene.Raw.Meshes);
+            sourceScene.Lights.AddRange(scene.Raw.Lights);
+            sourceScene.Cameras.AddRange(scene.Raw.Cameras);
 
             if (includeAnimations)
             {
-                sourceScene.Animations = scene.Raw.Animations;
+                //sourceScene.Animations = scene.Raw.Animations;
+                sourceScene.Animations.AddRange(scene.Raw.Animations);
             }
 
             var uniques = new HashSet<string>();

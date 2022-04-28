@@ -63,7 +63,7 @@ namespace open3mod
                 {
                     v = AssimpToOpenTk.FromVector(mesh.Vertices[(int)i]);
                 }
-                v = Vector4.Transform(new Vector4(v, 1.0f), transform).Xyz; // Skip dividing by W component. It should always be 1, here.
+                v = Vector3.TransformVector(v, transform); // Skip dividing by W component. It should always be 1, here.
 
                 Vector3 n;
                 if (skinner != null)
@@ -74,7 +74,7 @@ namespace open3mod
                 {
                     n = AssimpToOpenTk.FromVector(mesh.Normals[(int)i]);
                 }
-                n = Vector4.Transform(new Vector4(n, 0.0f), normalMatrix).Xyz; // Toss the W component. It is non-sensical for normals.
+                n = Vector3.TransformNormal(n, normalMatrix); // Toss the W component. It is non-sensical for normals.
                 n.Normalize();
 
                 GL.Vertex3(v);

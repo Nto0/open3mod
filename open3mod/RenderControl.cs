@@ -44,7 +44,7 @@ namespace open3mod
     class RenderControl : GLControl
     {
         public RenderControl()
-            : base(new GraphicsMode(new ColorFormat(32), 24, 8, GetSampleCount(GraphicsSettings.Default.MultiSampling)))
+            : base() //new GraphicsMode(new ColorFormat(32), 24, 8, GetSampleCount(GraphicsSettings.Default.MultiSampling))
         { }
 
 
@@ -86,18 +86,19 @@ namespace open3mod
         private static int MaximumSampleCount()
         {
             // http://www.opentk.com/node/2355 modified to actually work
-            var highest = 0;
-            var aa = 0;
-            do
-            {
-                var mode = new GraphicsMode(32, 0, 0, aa);
-                if(mode.Samples == aa && mode.Samples > highest)
-                {
-                    highest = mode.Samples;
-                }
-                aa += 2;
-            } while (aa <= 32);
-            return highest;
+            //var highest = 0;
+            //var aa = 0;
+            //do
+            //{
+            //    var mode = new GraphicsMode(32, 0, 0, aa);
+            //    if(mode.Samples == aa && mode.Samples > highest)
+            //    {
+            //        highest = mode.Samples;
+            //    }
+            //    aa += 2;
+            //} while (aa <= 32);
+            //return highest;
+            return 0;
         }
     }
 }

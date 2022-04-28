@@ -832,7 +832,7 @@ namespace open3mod
         }
 
 
-        private void OnKeyPress(object sender, KeyPressEventArgs e)
+        private void OnKeyPress(object sender, System.Windows.Forms.KeyPressEventArgs e)
         {
             if (e.KeyChar == 13) // 13 is newline and thus corresponds to the Enter key
             {
@@ -1125,14 +1125,16 @@ namespace open3mod
                     parent = node.Parent;
                     parentChildIndex = node.Index;
 
-                    sceneNode.Remove();
+                    if (sceneNode.Parent != null)
+                        sceneNode.Parent.Children.Remove(sceneNode);
+                    //sceneNode.Remove();
                     node.Remove();
                 },
                 () =>
                 {
                     node = _treeNodesBySceneNode[sceneNode];
                     oldSceneParent.Children.Insert(oldSceneParentChildPosition, sceneNode);
-                    sceneNode.Parent = oldSceneParent;
+                    //sceneNode.Parent = oldSceneParent;
                     parent.Nodes.Insert(parentChildIndex, node);
                 },
                 FinishUpdatingTree);
@@ -1153,12 +1155,15 @@ namespace open3mod
                 () =>
                 {
                     _scene.Raw.RootNode = sceneNode;
-                    sceneNode.Parent = null;
+                    //sceneNode.Parent = null;
+                    if (sceneNode.Parent != null)
+                        sceneNode.Parent.Children.Remove(sceneNode);
                 },
                 () =>
                 {
                     _scene.Raw.RootNode = oldRootNode;
-                    sceneNode.Parent = oldParent;
+                    //sceneNode.Parent = oldParent;
+                    oldParent.Children.Add(sceneNode);
                 },
                 RebuildTree);
         }
@@ -1192,13 +1197,17 @@ namespace open3mod
                     parent = node.Parent;
                     parentChildIndex = node.Index;
 
-                    nodeMeshPair.Key.MeshIndices = newList;
+                    nodeMeshPair.Key.MeshIndices.Clear();
+                    nodeMeshPair.Key.MeshIndices.AddRange(newList);
+                    //nodeMeshPair.Key.MeshIndices = newList;
                     node.Remove();
                 },
                 () =>
                 {
                     node = _treeNodesBySceneNodeMeshPair[nodeMeshPair];
-                    nodeMeshPair.Key.MeshIndices = oldList;
+                    nodeMeshPair.Key.MeshIndices.Clear();
+                    nodeMeshPair.Key.MeshIndices.AddRange(oldList);
+                    //nodeMeshPair.Key.MeshIndices = oldList;
                     parent.Nodes.Insert(parentChildIndex, node);
                 },
                 FinishUpdatingTree);

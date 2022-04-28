@@ -21,6 +21,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Assimp;
 using Assimp.Unmanaged;
 using KDTree;
@@ -350,21 +351,20 @@ namespace open3mod
                 }
                 // For each vertices, retrieve adjacent/identical vertices by looking
                 // up neighbors within a very small (epsilon'ish) radius.
-                Faces.ParallelDo(
-                    face =>
+                Parallel.ForEach(Faces, face =>
+                {
+                    foreach (var vert in face.Vertices)
                     {
-                        foreach (var vert in face.Vertices)
+                        var pos = vert.Position;
+                        var neighbors = tree.NearestNeighbors(new double[] { pos.X, pos.Y, pos.Z },
+                            new SquareEuclideanDistanceFunction(),
+                            int.MaxValue, 1e-5f);
+                        foreach (var neighbor in neighbors)
                         {
-                            var pos = vert.Position;
-                            var neighbors = tree.NearestNeighbors(new double[] { pos.X, pos.Y, pos.Z },
-                                new SquareEuclideanDistanceFunction(),
-                                int.MaxValue, 1e-5f);
-                            foreach (var neighbor in neighbors)
-                            {
-                                vert.AdjacentVertices.Add(neighbor);
-                            }
+                            vert.AdjacentVertices.Add(neighbor);
                         }
-                    });
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -372,21 +372,20 @@ namespace open3mod
                 // Unfortunately, KDTree rarely crashes.
                 // Long-term: fix KDTree.
                 // Short-term: O(n^2) brute force workaround.
-                Faces.ParallelDo(
-                    face =>
+                Parallel.ForEach(Faces, face =>
+                {
+                    foreach (var vert in face.Vertices)
                     {
-                        foreach (var vert in face.Vertices)
+                        var pos = vert.Position;
+                        foreach (var otherVert in Vertices)
                         {
-                            var pos = vert.Position;
-                            foreach (var otherVert in Vertices)
+                            if (vert.IsApproximatelySamePosition(otherVert))
                             {
-                                if (vert.IsApproximatelySamePosition(otherVert))
-                                {
-                                    vert.AdjacentVertices.Add(otherVert);
-                                }
+                                vert.AdjacentVertices.Add(otherVert);
                             }
                         }
-                    });
+                    }
+                });
 
             }
             // Vertices being adjacent should be a transitive relation, yet this is

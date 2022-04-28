@@ -69,12 +69,12 @@ namespace open3mod
 
         public static Color4 FromColor(Color4D color)
         {
-            Color4 c;
-            c.R = color.R;
-            c.G = color.G;
-            c.B = color.B;
-            c.A = color.A;
-            return c;
+            //Color4 c;
+            //c.R = color.R;
+            //c.G = color.G;
+            //c.B = color.B;
+            //c.A = color.A;
+            return new Color4(color.R, color.G, color.B, color.A);
         }
     }
 }

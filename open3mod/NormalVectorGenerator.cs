@@ -21,7 +21,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Amib.Threading;
+using System.Threading.Tasks;
 using Assimp;
 
 namespace open3mod
@@ -31,9 +31,9 @@ namespace open3mod
         private readonly Mesh _mesh;
         private readonly EditMesh _editMesh;
 
-        private static SmartThreadPool _threadPool = null;
-        private static readonly object ThreadPoolMutex = new object();
-        private const int ParallelizationChunkSize = 1000;
+        //private static SmartThreadPool _threadPool = null;
+        //private static readonly object ThreadPoolMutex = new object();
+        //private const int ParallelizationChunkSize = 1000;
 
         /// <summary>
         /// This is an expensive operation due to EditMesh construction, avoid.
@@ -48,17 +48,17 @@ namespace open3mod
                 _editMesh = new EditMesh(_mesh);
             }
 
-            lock (ThreadPoolMutex)
-            {
-                if (_threadPool != null)
-                    return;
-                int cpuCount = Environment.ProcessorCount;
-                // One thread is busy rendering, so many extra threads that do not block on IO
-                // (which our computation-heavy jobs don't) easily starve the GUI. Thus,
-                // always reserve 25% and at least one core.
-                int jobCount = Math.Max(1, (cpuCount * 3) / 4);
-                _threadPool = new SmartThreadPool(1000, jobCount, jobCount);
-            }
+            //lock (ThreadPoolMutex)
+            //{
+            //    if (_threadPool != null)
+            //        return;
+            //    int cpuCount = Environment.ProcessorCount;
+            //    // One thread is busy rendering, so many extra threads that do not block on IO
+            //    // (which our computation-heavy jobs don't) easily starve the GUI. Thus,
+            //    // always reserve 25% and at least one core.
+            //    int jobCount = Math.Max(1, (cpuCount * 3) / 4);
+            //    _threadPool = new SmartThreadPool(1000, jobCount, jobCount);
+            //}
         }
 
         /// <summary>
@@ -82,58 +82,56 @@ namespace open3mod
 
         private void CalculateFaceNormals()
         {
-            _editMesh.Faces.ParallelDo(
-                face =>
+            Parallel.ForEach(_editMesh.Faces, face =>
+            {
+                Vector3D faceNormal = new Vector3D();
+                if (face.Vertices.Count == 3)
                 {
-                    Vector3D faceNormal = new Vector3D();
-                    if (face.Vertices.Count == 3)
-                    {
-                        Vector3D v0 = face.Vertices[0].Position;
-                        Vector3D v1 = face.Vertices[1].Position;
-                        Vector3D v2 = face.Vertices[2].Position;
-                        faceNormal = Vector3D.Cross(v1 - v0, v2 - v1);
-                    }
-                    if (faceNormal.LengthSquared() > 0.0f)
-                    {
-                        faceNormal.Normalize();
-                    }
-                    foreach (var vert in face.Vertices)
-                    {
-                        vert.Normal = faceNormal;
-                    }
-                    face.Normal = faceNormal;
-                }, ParallelizationChunkSize, _threadPool);
+                    Vector3D v0 = face.Vertices[0].Position;
+                    Vector3D v1 = face.Vertices[1].Position;
+                    Vector3D v2 = face.Vertices[2].Position;
+                    faceNormal = Vector3D.Cross(v1 - v0, v2 - v1);
+                }
+                if (faceNormal.LengthSquared() > 0.0f)
+                {
+                    faceNormal.Normalize();
+                }
+                foreach (var vert in face.Vertices)
+                {
+                    vert.Normal = faceNormal;
+                }
+                face.Normal = faceNormal;
+            });
         }
 
         private void SmoothNormals(float thresholdAngleInDegrees)
         {
             float thresholdAngleInRadians = (float)(thresholdAngleInDegrees*Math.PI/180.0);
             float cosThresholdAngle = (float)Math.Cos(thresholdAngleInRadians);
-            _editMesh.Vertices.ParallelDo(
-                vert =>
+            Parallel.ForEach(_editMesh.Vertices, vert =>
+            {
+                var faceNormal = vert.Face.Normal.Value;
+                vert.Normal = faceNormal;
+                foreach (var adjacentVert in vert.AdjacentVertices)
                 {
-                    var faceNormal = vert.Face.Normal.Value;
-                    vert.Normal = faceNormal;
-                    foreach (var adjacentVert in vert.AdjacentVertices)
+                    if (vert == adjacentVert)
                     {
-                        if (vert == adjacentVert)
-                        {
-                            continue;
-                        }
-                        var adjacentFace = adjacentVert.Face;
-                        var adjacentFaceNormal = adjacentFace.Normal.Value;
-                        if (Vector3D.Dot(faceNormal, adjacentFaceNormal) >= cosThresholdAngle)
-                        {
-                            vert.Normal += adjacentFaceNormal;
-                        }
+                        continue;
                     }
-                    if (vert.Normal.Value.LengthSquared() > 0.0f)
+                    var adjacentFace = adjacentVert.Face;
+                    var adjacentFaceNormal = adjacentFace.Normal.Value;
+                    if (Vector3D.Dot(faceNormal, adjacentFaceNormal) >= cosThresholdAngle)
                     {
-                        var v = vert.Normal.Value;
-                        v.Normalize();
-                        vert.Normal = v;
+                        vert.Normal += adjacentFaceNormal;
                     }
-                }, ParallelizationChunkSize, _threadPool);
+                }
+                if (vert.Normal.Value.LengthSquared() > 0.0f)
+                {
+                    var v = vert.Normal.Value;
+                    v.Normalize();
+                    vert.Normal = v;
+                }
+            });
         }
     }
 }

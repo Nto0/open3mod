@@ -16,21 +16,31 @@ namespace open3mod
         public static void DeepCopy(Mesh dest, Mesh src)
         {
             ShallowCopy(dest, src);
-            dest.Vertices = new List<Vector3D>(src.Vertices);
-            dest.Normals = new List<Vector3D>(src.Normals);
-            dest.Tangents = new List<Vector3D>(src.Tangents);
-            dest.BiTangents = new List<Vector3D>(src.BiTangents);
-            dest.TextureCoordinateChannels = new List<Vector3D>[AiDefines.AI_MAX_NUMBER_OF_TEXTURECOORDS];
+            dest.Vertices.Clear();
+            dest.Vertices.AddRange(src.Vertices);
+            //dest.Vertices = new List<Vector3D>(src.Vertices);
+            dest.Normals.Clear();
+            dest.Normals.AddRange(src.Normals);
+            //dest.Normals = new List<Vector3D>(src.Normals);
+            dest.Tangents.Clear();
+            dest.Tangents.AddRange(src.Tangents);
+            //dest.Tangents = new List<Vector3D>(src.Tangents);
+            dest.BiTangents.Clear();
+            dest.BiTangents.AddRange(src.BiTangents);
+            //dest.BiTangents = new List<Vector3D>(src.BiTangents);
+            //dest.TextureCoordinateChannels = new List<Vector3D>[AiDefines.AI_MAX_NUMBER_OF_TEXTURECOORDS];
             for (int i = 0; i < AiDefines.AI_MAX_NUMBER_OF_TEXTURECOORDS; ++i)
             {
                 dest.TextureCoordinateChannels[i] = new List<Vector3D>(src.TextureCoordinateChannels[i]);
             }
-            dest.VertexColorChannels = new List<Color4D>[AiDefines.AI_MAX_NUMBER_OF_COLOR_SETS];
+            //dest.VertexColorChannels = new List<Color4D>[AiDefines.AI_MAX_NUMBER_OF_COLOR_SETS];
             for (int i = 0; i < AiDefines.AI_MAX_NUMBER_OF_COLOR_SETS; ++i)
             {
                 dest.VertexColorChannels[i] = new List<Color4D>(src.VertexColorChannels[i]);
             }
-            dest.Faces = new List<Face>(src.Faces);
+            dest.Faces.Clear();
+            dest.Faces.AddRange(src.Faces);
+            //dest.Faces = new List<Face>(src.Faces);
             for (int i = 0; i < dest.Faces.Count; ++i)
             {
                 dest.Faces[i] = new Face(dest.Faces[i].Indices.ToArray());
